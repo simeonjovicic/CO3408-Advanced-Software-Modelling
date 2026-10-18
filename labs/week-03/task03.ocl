@@ -1,0 +1,19 @@
+context Member
+inv: self.fines >= 0
+
+context Loan
+inv: self.dueDate > self.startDate
+
+context Member::borrow(copy : Copy) : Loan
+pre: self.loans->select(l | not l.returned)->size() < self.maxLoans
+pre: self.fines = 0
+pre: copy.status = CopyStatus::Available
+post: result.oclIsNew()
+post: self.loans = self.loans@pre->including(result)
+post: result.copy = copy and result.returned = false
+post: result.dueDate = result.startDate + 21
+post: copy.status = CopyStatus::OnLoan
+
+context Member::payFine(amount : Real)
+pre: amount > 0 and amount <= self.fines
+post: self.fines = self.fines@pre - amount
