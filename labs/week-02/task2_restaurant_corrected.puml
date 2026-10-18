@@ -1,0 +1,53 @@
+@startuml Task2_Restaurant_Corrected
+!pragma layout smetana
+hide circle
+skinparam classAttributeIconSize 0
+skinparam shadowing false
+skinparam nodesep 90
+skinparam class {
+  BackgroundColor White
+  BorderColor #1F2A44
+  ArrowColor #1F2A44
+}
+
+class Restaurant {
+  - name : String
+}
+
+class Menu {
+  - title : String
+}
+
+class MenuItem {
+  - name : String
+  - price : Real
+}
+
+class Customer {
+  - name : String
+  + placeOrder()
+}
+
+class VIPCustomer {
+  - discount : Real
+}
+
+' dbConnection removed: implementation detail, not part of an analysis model
+class Order {
+  - orderId : String
+  + calculateTotal() : Real
+  + submit()
+}
+
+' Fix 1: filled diamond sits at the WHOLE (Restaurant), not the part
+Restaurant "1" *-right- "1" Menu : has >
+Menu "1" -right- "1..*" MenuItem : contains >
+
+' Fix 2: one Customer places many Orders; each Order has exactly one Customer
+Customer "1" -right- "0..*" Order : places >
+
+' Fix 3: hollow triangle points at the general class (Customer)
+Customer <|-down- VIPCustomer
+
+Restaurant -[hidden]down- Customer
+@enduml

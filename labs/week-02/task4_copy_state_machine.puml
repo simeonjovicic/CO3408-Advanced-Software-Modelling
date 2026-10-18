@@ -1,0 +1,39 @@
+@startuml task4_copy_state_machine
+' Uses PlantUML's built-in layout engine, so Graphviz is NOT needed.
+' (With Graphviz installed you can delete the next line.)
+!pragma layout smetana
+' Task 4 - state machine for a library Copy
+' Transition syntax:  event() [guard] / action()
+hide empty description
+skinparam shadowing false
+skinparam ranksep 90
+skinparam nodesep 70
+skinparam state {
+  BackgroundColor White
+  BorderColor #1F2A44
+  ArrowColor #1F2A44
+}
+
+state Available
+state Reserved
+state Lost
+' Internal transition: a reservation on a borrowed copy is queued,
+' the copy stays OnLoan (no exit / re-entry)
+state OnLoan : reserve() / addReservation(member)
+
+[*] -down-> Available
+
+OnLoan -left-> Available : checkIn()\n[no reservation waiting]\n/ closeLoan()
+Available -right-> OnLoan : checkOut()\n[member.canBorrow()]\n/ createLoan()
+
+Available -down-> Reserved : reserve()\n/ holdFor(member)
+Reserved -up-> Available : cancelReservation()
+
+OnLoan -down-> Reserved : checkIn()\n[reservation waiting]\n/ closeLoan();\nnotifyMember()
+Reserved -up-> OnLoan : checkOut()\n[borrower ==\nreservingMember]\n/ createLoan()
+
+Available -down-> Lost : reportLost()
+OnLoan -down-> Lost : reportLost()\n/ chargeBorrower()
+Reserved -down-> Lost : reportLost()\n/ notifyMember()
+Lost -up-> Available : found()
+@enduml

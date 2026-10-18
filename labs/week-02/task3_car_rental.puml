@@ -1,0 +1,65 @@
+@startuml Task3_CarRental
+' Uses PlantUML's built-in layout engine, so Graphviz is NOT needed.
+' (With Graphviz installed you can delete the next line.)
+!pragma layout smetana
+' Task 3 - car rental class diagram (analysis / domain model)
+hide circle
+skinparam classAttributeIconSize 0
+skinparam shadowing false
+skinparam groupInheritance 2
+skinparam ranksep 70
+skinparam class {
+  BackgroundColor White
+  BorderColor #1F2A44
+  ArrowColor #1F2A44
+}
+
+class Customer {
+  - name : String
+  - licenceNumber : String
+  - email : String
+}
+
+class Booking {
+  - startDate : Date
+  - endDate : Date
+  - totalCost : Real
+  + calculateCost() : Real
+}
+
+class DamageReport {
+  - description : String
+}
+
+' Car is abstract (italic): every car is either a StandardCar or an ElectricCar
+abstract class Car {
+  - registrationNumber : String
+  - make : String
+  - model : String
+  - dailyRate : Real
+  + isAvailable(start : Date, end : Date) : Boolean
+}
+
+class StandardCar
+
+class ElectricCar {
+  - batteryRange : Integer
+}
+
+class Branch {
+  - name : String
+  - address : String
+}
+
+Customer "1" -right- "0..*" Booking : makes >
+Booking "0..*" -right- "1" Car : is for >
+Car "0..*" -up- "1" Branch : is based at >
+
+' Composition: a DamageReport cannot exist without its Booking
+' (the spaces in "1    " only nudge the label clear of the diamond)
+DamageReport "0..1" -up-* "1    " Booking
+
+' Generalisation {complete, disjoint}
+Car <|-down- StandardCar
+Car <|-down- ElectricCar
+@enduml

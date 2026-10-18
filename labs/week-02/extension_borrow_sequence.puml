@@ -1,0 +1,45 @@
+@startuml Borrow_Copy_Sequence
+' Finished early - sequence diagram for borrowing a copy
+skinparam shadowing false
+skinparam sequenceMessageAlign left
+skinparam sequence {
+  ParticipantBackgroundColor White
+  ParticipantBorderColor #1F2A44
+  ActorBorderColor #1F2A44
+  ActorBackgroundColor White
+  LifeLineBorderColor #1F2A44
+  ArrowColor #1F2A44
+}
+
+actor Librarian
+participant ":LoanController" as ctrl
+participant "m : Member" as m
+participant "c : Copy" as c
+
+Librarian -> ctrl : borrowCopy(m, c)
+activate ctrl
+
+ctrl -> m : canBorrow()
+activate m
+m --> ctrl : ok : Boolean
+deactivate m
+
+alt ok == true
+  ctrl -> c : checkOut()
+  activate c
+  c --> ctrl
+  deactivate c
+
+  create ":Loan" as loan
+  ctrl -> loan : <<create>>(m, c, dueDate)
+  activate loan
+  loan --> ctrl : loan
+  deactivate loan
+
+  ctrl --> Librarian : confirmation(loan)
+else else
+  ctrl --> Librarian : refusal("member cannot borrow")
+end
+
+deactivate ctrl
+@enduml
